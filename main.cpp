@@ -1,5 +1,3 @@
-// This is the master file. Edit THIS as the latest.
-
 // Includes
 #include <iostream>
 #include <filesystem>
@@ -22,7 +20,6 @@ namespace fs = filesystem;
 void addMP3ToVector(const fs::path& directory, vector<string>& files);
 int grabLength (const string& filepath, const string& filename);
 void writePlaylist(const vector<pair<string, int>>& fileLengths, const string& directory, ostream& output);
-size_t write_data(void *ptr, size_t size, size_t nmemb, FILE *stream);
 string encodeURL(const string& input);
 
 // Main
