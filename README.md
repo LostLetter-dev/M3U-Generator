@@ -1,2 +1,5 @@
 # M3U-Generator
-Program to create an M3U file out of already existing MP3 files. This has the ability to create playlist files from websites and local (Don't quote me on this).
+
+Simple program to generate M3U playlists from a website path or a directory path.
+This also features automatic URL encoding (replacing spaces in an audio filename to URL-safe pathing, etc)
+Program also shuffles the playlist every time the program is called.
