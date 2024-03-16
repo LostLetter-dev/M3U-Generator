@@ -4,6 +4,7 @@ Simple program to generate M3U playlists from a website path or a directory path
 This also features automatic URL encoding (replacing spaces in an audio filename to URL-safe pathing, etc)
 Program also shuffles the playlist if the user wills it.
 
+
 ## To use
 
 Place compiled executable (or compile the thing yourself) in any directory and run it through a command line (recommended, probably not required)
