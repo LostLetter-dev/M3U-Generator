@@ -2,7 +2,8 @@
 
 Simple program to generate M3U playlists from a website path or a directory path.
 This also features automatic URL encoding (replacing spaces in an audio filename to URL-safe pathing, etc)
-Program also shuffles the playlist every time the program is called. (On experimental branch)
+Program also shuffles the playlist if the user wills it.
+
 
 ## To use
 
@@ -17,3 +18,11 @@ This will result in a .m3u playlist if there are no other errors.
 ## External libraries required/used
 
 - TagLib
+
+## Build command:
+
+If you want to build the program by source instead of downloading a release, you can use the following command to compile it.
+
+```
+g++ -o M3UplaylistGenerator main.cpp -ltag
+```
