@@ -10,7 +10,6 @@
 #include <taglib/tag.h>
 
 #include <fstream>
-#include <iostream>
 #include <algorithm>
 #include <random>
 
@@ -48,40 +47,75 @@ int main() {
         cerr << "Can't read 'url.txt', please check permissions or create it." << endl << "It must be a valid directory or a URL to work." << endl;
     }
 
+    char shuffleChoice; // Make sure that the user actually wants to shuffle the final result.
+    bool shuffle;
+    while (true) {
+        cout << "Do you want to shuffle this playlist? [y/n]" << endl;
+        shuffleChoice = getchar();
+
+        while (getchar() != '\n'); // Clear input buffer for invalid responses.
+
+        if (shuffleChoice == 'Y' || shuffleChoice == 'y') {
+            cout << "Playlist will be shuffled." << endl;
+            shuffle = true;
+            break;
+        } else if (shuffleChoice == 'N' || shuffleChoice == 'n') {
+            cout << "Playlist will not be shuffled." << endl;
+            shuffle = false;
+            break;
+        } else {
+            cout << "You did not enter a valid response." << endl;
+        }
+    }
+
     if (fs::exists(dirPath) && fs::is_directory(dirPath)) {
         addMP3ToVector(dirPath, audioFiles);
     
         // Prints list of MP3 files found.
+        cout << endl << "----- Processing files! This might take a moment! -----" << endl;
         for (const auto& file : audioFiles) {
-            std::cout << file << std::endl; // Logging.
+            cout << "Processing: " << file << endl; // Logging.
 
             int length = grabLength(dirPath, file); // Get length of file in seconds.
             
             // Check if the URL replacement is needed.
             string encodedFile = (isfp == 0) ? encodeURL(file) : file;
 
-            std::cout << "Length in Seconds: " << length << std::endl; // Logging.
-            fileLengths.push_back(std::make_pair(encodedFile, length)); // Add to final array.
+            if (length == 0) {
+                cout << "Warning, unable to get " << file << "'s length in seconds." << endl << "This will cause issues in URL playlists." << endl;
+            }
+
+            cout << "Length in Seconds: " << length << endl; // Logging.
+            fileLengths.push_back(make_pair(encodedFile, length)); // Add to final array.
         }
 
-        std::cout << "Done!" << std::endl;
+        cout << endl << "Done!" << endl << endl;
+
+        // Shuffles the final vector.
+        if (shuffle) {
+            shuffleVector(fileLengths);
+        }
 
     } else {
-        std::cerr << "Program assumes folder 'audio' exists in the same directory." << std::endl;
-        std::cerr << "Invalid directory or filepath doesn't exist." << std::endl;
+        cerr << "Program assumes folder 'audio' exists in the same directory." << endl;
+        cerr << "Invalid directory or filepath doesn't exist." << endl;
     }
 
-    std::ofstream outputFile("playlist.m3u");
-    if (outputFile.is_open()) {
+    cout << "Writing to playlist file..." << endl;
 
-        shuffleVector(fileLengths);
+    ofstream outputFile("playlist.m3u");
+    if (outputFile.is_open()) {
         
         writePlaylist(fileLengths, URL, outputFile);
         outputFile.close();
-        std::cout << "Playlist generated successfully!" << std::endl;
+        cout << "Playlist generated successfully!" << endl;
     } else {
-        std::cerr << "Unable to open file for writing!" << std::endl;
+        cerr << "Unable to open file for writing!" << endl;
     }
+
+    string x;
+    cout << endl <<  " [ Hit any key to exit... ] " << endl << endl;
+    getchar();
 
     return 0;
 }
@@ -119,23 +153,29 @@ int grabLength (const string& filepath, const string& filename) {
         cerr << "Error: " << e.what() << endl;
         return 0;
     }
+
+
+    cout << "file is invalid or audioProperties returned false." << endl;
+    return 0; // Always return 0 if no conditions are met.
+    /* Realistically, this should never be called unless the filescanner fails in some way.
+    This is here to get rid of a compilation warning.*/
 }
 
 void writePlaylist(const vector<pair<string, int>>& fileLengths, const string& directory, ostream& output) {
-    output << "#EXTM3U \n \n";
+    output << "#EXTM3U \n \n"; // Required for top of M3U file.
 
     for (const auto& fileInfo : fileLengths) {
         const string& file = fileInfo.first;
         int lengthInSeconds = fileInfo.second;
-        output << "#EXTINF:" << lengthInSeconds << ",Author - " << file << endl;
-        output << directory << file << ".mp3" << endl << endl;
+        output << "#EXTINF:" << lengthInSeconds << ",Author - " << file << endl; // #EXTINF:60,Author - Filename
+        output << directory << file << ".mp3" << endl << endl; // Outputs path to file.
     }
 }
 
-string encodeURL(const std::string& input) {
+string encodeURL(const string& input) {
     ostringstream encoded;
     encoded.fill('0');
-    encoded << std::hex;
+    encoded << hex;
 
     for (char ch : input) {
         if (isalnum(static_cast<unsigned char>(ch)) || ch == '-' || ch == '_' || ch == '.' || ch == '~') {
@@ -148,13 +188,13 @@ string encodeURL(const std::string& input) {
     }
 
     return encoded.str();
-}
+} // For when the file is a URL.
 
 void shuffleVector(vector<pair<string, int>>& vec) {
     // Initialize random number generator
-    std::random_device rd;
-    std::mt19937 g(rd());
+    random_device rd;
+    mt19937 g(rd());
 
     // Shuffle the vector
-    std::shuffle(vec.begin(), vec.end(), g);
+    shuffle(vec.begin(), vec.end(), g);
 }
